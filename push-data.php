@@ -1,7 +1,6 @@
 <?php
 
   require_once './vendor/autoload.php';
-  require_once './SleekDB/SleekDB.php';
 
   $faker = Faker\Factory::create();
 
@@ -23,12 +22,14 @@
     return $fakeUser;
   }
 
-
-  // print_r( newUser( $faker ) );
-
-  $usersDB = new SleekDB( 'users' );
-
-  for ($i=0; $i < 1000000; $i++) { 
-    $usersDB->insert( newUser($faker) );
-    sleep( 0.2 );
+  for ( $i=0; $i < 50000; $i++ ) {
+    $result = file_get_contents( 'http://127.0.0.1:2010/endpoint.php', false, stream_context_create( [
+      'http' => [
+        'method'  => 'POST',
+        'header'  => 'Content-type: application/x-www-form-urlencoded',
+        'content' => http_build_query( [ 'data' => newUser($faker) ] )
+      ]
+    ] ) );
+    echo $i . ' | ' . $result;
+    echo "\n";
   }
